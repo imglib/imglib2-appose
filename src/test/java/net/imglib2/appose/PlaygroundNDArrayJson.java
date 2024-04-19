@@ -29,55 +29,44 @@
 
 package net.imglib2.appose;
 
-import java.io.IOException;
-
+import net.imglib2.img.Img;
+import net.imglib2.type.numeric.real.FloatType;
 import org.apposed.appose.Appose;
 import org.apposed.appose.Environment;
+import org.apposed.appose.NDArray;
 import org.apposed.appose.Service;
 import org.apposed.appose.Service.Task;
-import org.apposed.appose.shm.SharedMemoryArray;
 
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.img.array.ArrayImg;
-import net.imglib2.type.numeric.real.FloatType;
+import java.util.HashMap;
+import java.util.Map;
 
-public class PlaygroundNDArray
+public class PlaygroundNDArrayJson
 {
-	public static void main( String[] args ) throws IOException, InterruptedException
+	public static void main( String[] args ) throws Exception
 	{
 		final FloatType type = new FloatType();
-//		final NDArray ndArray = new NDArray(
-//				type.getNativeTypeFactory().getPrimitiveType(),
-//				new Shape( Shape.Order.F_ORDER, 4, 3, 2 ) );
-
-		final NDArray ndArray = new NDArray( type, 4, 3, 2 );
-		final RandomAccessibleInterval< FloatType > img = NDArrayUtils.asArrayImg( ndArray, type );
+		final NDArray ndArray = NDArrayUtils.ndArray( type, 4, 3, 2 );
+		final Img<FloatType> img = NDArrayUtils.asArrayImg(ndArray, type);
 
 		int i = 0;
-		for ( FloatType t : img )
-			t.set( i++ );
+		for (FloatType t : img)
+			t.set(i++);
 
 		final Environment env = Appose.base( "/opt/homebrew/Caskroom/miniforge/base/envs/appose/" ).build();
 		try ( Service service = env.python() )
 		{
-			final String script = String.format( PRINT_NDARRAY, ndArray.shm().getNameForPython() );
-//			System.out.println( script );
-			Task task = service.task( script );
+			final Map< String, Object > inputs = new HashMap<>();
+			inputs.put( "img", ndArray);
+			Task task = service.task(PRINT_INPUT, inputs );
 			task.waitFor();
-//			System.out.println("task.inputs = " + task.inputs);
-//			System.out.println("task.outputs = " + task.outputs);
 			final String result = ( String ) task.outputs.get( "result" );
 			System.out.println( "result = \n" + result );
 		}
 		ndArray.close();
 	}
 
-	private static final String PRINT_NDARRAY = "" + //
-			"from multiprocessing import shared_memory\n" + //
-			"import numpy as np\n" + //
-			"size = 24\n" + //
-			"im_shm = shared_memory.SharedMemory(name='%s', size=size * 4)\n" + //
-			"arr = np.ndarray(size, dtype='float32', buffer=im_shm.buf).reshape([2, 3, 4])\n" + //
-			"task.outputs['result'] = str(arr)\n" + //
-			"im_shm.unlink()";
+	private static final String PRINT_INPUT = "" + //
+		"import numpy as np\n" + //
+		"task.outputs['result'] = str(img.ndarray())";
+
 }
