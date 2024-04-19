@@ -29,7 +29,10 @@
 
 package net.imglib2.appose;
 
+import static net.imglib2.appose.Shape.Order.C_ORDER;
+
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.apposed.appose.Appose;
 import org.apposed.appose.Environment;
@@ -39,6 +42,7 @@ import org.apposed.appose.shm.SharedMemoryArray;
 
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.array.ArrayImg;
+import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.type.numeric.real.FloatType;
 
 public class PlaygroundNDArray
@@ -46,6 +50,7 @@ public class PlaygroundNDArray
 	public static void main( String[] args ) throws IOException, InterruptedException
 	{
 		final FloatType type = new FloatType();
+
 //		final NDArray ndArray = new NDArray(
 //				type.getNativeTypeFactory().getPrimitiveType(),
 //				new Shape( Shape.Order.F_ORDER, 4, 3, 2 ) );
@@ -57,11 +62,36 @@ public class PlaygroundNDArray
 		for ( FloatType t : img )
 			t.set( i++ );
 
+//		final UnsignedByteType type = new UnsignedByteType();
+//		final NDArray ndArray = new NDArray( type, 4, 3, 2 );
+//		final RandomAccessibleInterval< UnsignedByteType > img = NDArrayUtils.asArrayImg( ndArray, type );
+//
+//		int i = 0;
+//		for ( UnsignedByteType t : img )
+//			t.set( i++ );
+
 		final Environment env = Appose.base( "/opt/homebrew/Caskroom/miniforge/base/envs/appose/" ).build();
 		try ( Service service = env.python() )
 		{
-			final String script = String.format( PRINT_NDARRAY, ndArray.shm().getNameForPython() );
-//			System.out.println( script );
+			final String script = String.format( PRINT_NDARRAY,
+					ndArray.shm().getNameForPython(),
+					ndArray.shape().numElements(),
+					ndArray.primitiveType().getByteCount(),
+					Arrays.toString( ndArray.shape().asIntArray( C_ORDER ) ) );
+			//
+			// TODO: Add int[] Shape.shape()?
+			//    ndArray.shape().with( C_ORDER ).dimensions().dimensionsAsLongArray()
+			//    ndArray.shape().with( C_ORDER ).shape()
+			// TODO: rename Shape.with() to Shape.as()?
+			//    ndArray.shape().as( C_ORDER ).shape()
+			//    or
+			//    ndArray.shape().as( C_ORDER ).dimensionsAsLongArray()
+			//    or
+			//    ndArray.shape().with( C_ORDER ).dimensionsAsLongArray()
+			//    or
+			//    ndArray.shape().asIntArray( C_ORDER )
+			//
+			System.out.println( script );
 			Task task = service.task( script );
 			task.waitFor();
 //			System.out.println("task.inputs = " + task.inputs);
@@ -72,12 +102,18 @@ public class PlaygroundNDArray
 		ndArray.close();
 	}
 
+	// Format string arguments:
+	//  - (String) name of the shared memory segment
+	//  - (int) number of elements in the segment
+	//  - (int) number of bytes per element
+	//  - (String) shape formatted like "[1,2,3]"
 	private static final String PRINT_NDARRAY = "" + //
 			"from multiprocessing import shared_memory\n" + //
 			"import numpy as np\n" + //
-			"size = 24\n" + //
-			"im_shm = shared_memory.SharedMemory(name='%s', size=size * 4)\n" + //
-			"arr = np.ndarray(size, dtype='float32', buffer=im_shm.buf).reshape([2, 3, 4])\n" + //
+			"size = %2$d\n" + //
+			"bytes_per_element = %3$d\n" + //
+			"im_shm = shared_memory.SharedMemory(name='%1$s', size=size * bytes_per_element)\n" + //
+			"arr = np.ndarray(size, dtype='float32', buffer=im_shm.buf).reshape(%4$s)\n" + //
 			"task.outputs['result'] = str(arr)\n" + //
 			"im_shm.unlink()";
 }
