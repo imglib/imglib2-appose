@@ -57,7 +57,12 @@ public class Shape
 		return Intervals.numElements( shape );
 	}
 
-	public Shape with( final Order order )
+	public int[] asIntArray( final Order order )
+	{
+		return with( order ).shape;
+	}
+
+	public Shape with( final Order order ) // rename to as(Order) ?
 	{
 		return order.equals( this.order ) ? this : reverseShape;
 	}
