@@ -32,67 +32,83 @@ package net.imglib2.appose;
 import static net.imglib2.appose.Shape.Order.C_ORDER;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.apposed.appose.Appose;
-import org.apposed.appose.Environment;
-import org.apposed.appose.Service;
-import org.apposed.appose.Service.Task;
-import org.apposed.appose.shm.SharedMemoryArray;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.img.array.ArrayImg;
-import net.imglib2.type.numeric.integer.UnsignedByteType;
+import groovy.json.JsonOutput;
 import net.imglib2.type.numeric.real.FloatType;
 
-public class PlaygroundNDArray
+public class PlaygroundNDArrayJson
 {
+	public static class NDArrayJson
+	{
+		public static String toJson( final NDArray ndArray )
+		{
+			return JsonOutput.toJson( toMap( ndArray ) );
+		}
+
+		public static Map< String, Object > toMap( final NDArray ndArray )
+		{
+			final Map< String, Object > map = new LinkedHashMap<>();
+
+			map.put( "appose_ndarray", "v0.0.1" );
+			map.put( "shm_name", ndArray.shm().name() );
+			map.put( "shm_size", ndArray.shm().size() );
+			map.put( "dtype", ndArray.dType().json() );
+			map.put( "shape", ndArray.shape().asIntArray( C_ORDER ) );
+
+			return map;
+		}
+	}
+
+
+	static class NDArrayInfo
+	{
+		private final String appose_ndarray = "v0.0.1";
+		private final String shm_name;
+		private final long shm_size;
+		private final String dtype;
+		private final int[] shape;
+
+		public NDArrayInfo( final NDArray ndArray  )
+		{
+			this( ndArray.shm().name(), ndArray.shm().size(), ndArray.dType().json(), ndArray.shape().asIntArray( C_ORDER ) );
+		}
+
+		public NDArrayInfo( final String shm_name, final long shm_size, final String dtype, final int[] shape )
+		{
+			this.shm_name = shm_name;
+			this.shm_size = shm_size;
+			this.dtype = dtype;
+			this.shape = shape;
+		}
+	}
+
 	public static void main( String[] args ) throws IOException, InterruptedException
 	{
 		final FloatType type = new FloatType();
-
-//		final NDArray ndArray = new NDArray(
-//				type.getNativeTypeFactory().getPrimitiveType(),
-//				new Shape( Shape.Order.C_ORDER, 2, 3, 4 ) );
-
 		final NDArray ndArray = new NDArray( type, 4, 3, 2 );
-		final RandomAccessibleInterval< FloatType > img = NDArrayUtils.asArrayImg( ndArray, type );
 
-		int i = 0;
-		for ( FloatType t : img )
-			t.set( i++ );
+		System.out.println( "the_json = '" + NDArrayJson.toJson( ndArray ) + "'" );
 
-//		final UnsignedByteType type = new UnsignedByteType();
-//		final NDArray ndArray = new NDArray( type, 4, 3, 2 );
-//		final RandomAccessibleInterval< UnsignedByteType > img = NDArrayUtils.asArrayImg( ndArray, type );
+//		final NDArrayInfo info = new NDArrayInfo( ndArray );
+//		String encode = JsonOutput.toJson(info.intArray);
+//		System.out.println( "encode = `" + encode + "`" );
 //
-//		int i = 0;
-//		for ( UnsignedByteType t : img )
-//			t.set( i++ );
+		final Gson gson = new GsonBuilder().create();
+		String encode = gson.toJson( new NDArrayInfo( ndArray ) );
+		System.out.println( "gson = '" + encode + "'" );
 
-		final Environment env = Appose.base( "/opt/homebrew/Caskroom/miniforge/base/envs/appose/" ).build();
-		try ( Service service = env.python() )
+		while ( true )
 		{
-			final String script = String.format( PRINT_NDARRAY,
-					ndArray.shm().name(),
-					ndArray.shape().numElements(),
-					ndArray.dType().bytesPerElement(),
-					Arrays.toString( ndArray.shape().asIntArray( C_ORDER ) ),
-					ndArray.dType().label() );
-			System.out.println( script );
-//			final Map< String, Object > inputs = new HashMap<>();
-			// TODO: Add interface for json-ifying things
-			//       problem is with (automatic) reconstruction from json
-//			inputs.put( "img", ndArray);
-//			Task task = service.task( script, inputs );
-			Task task = service.task( script );
-			task.waitFor();
-			final String result = ( String ) task.outputs.get( "result" );
-			System.out.println( "result = \n" + result );
+			Thread.sleep( 1000 );
+			System.out.print( "." );
 		}
-		ndArray.close();
+//		ndArray.close();
 	}
 
 	// TODO: send NDArray in task.inputs as JSON
@@ -102,14 +118,14 @@ public class PlaygroundNDArray
 	//  - (int) number of elements in the segment
 	//  - (int) number of bytes per element
 	//  - (String) shape formatted like "[1,2,3]"
-	//  - (String) dtype
+	//  - TODO: send dtype too
 	private static final String PRINT_NDARRAY = "" + //
 			"from multiprocessing import shared_memory\n" + //
 			"import numpy as np\n" + //
 			"size = %2$d\n" + //
 			"bytes_per_element = %3$d\n" + //
 			"im_shm = shared_memory.SharedMemory(name='%1$s', size=size * bytes_per_element)\n" + //
-			"arr = np.ndarray(size, dtype='%5$s', buffer=im_shm.buf).reshape(%4$s)\n" + //
+			"arr = np.ndarray(size, dtype='float32', buffer=im_shm.buf).reshape(%4$s)\n" + //
 			"task.outputs['result'] = str(arr)\n" + //
 			"im_shm.unlink()";
 }

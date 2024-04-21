@@ -9,47 +9,43 @@ import java.nio.ByteBuffer;
 import org.apposed.appose.shm.SharedMemoryArray;
 
 import net.imglib2.type.NativeType;
-import net.imglib2.type.PrimitiveType;
 
 public class NDArray implements Closeable
 {
 	private final SharedMemoryArray sharedMemoryArray;
 
-	private final boolean isOwner = true; // TODO: how does this work? Can we make multiple SharedMemoryArray for the same segment, and close each individually???
-
-	private final PrimitiveType primitiveType;
+	private final DType dType;
 
 	private final Shape shape;
 
-	public NDArray( final SharedMemoryArray sharedMemoryArray, final PrimitiveType primitiveType, final Shape shape )
+	public NDArray( final SharedMemoryArray sharedMemoryArray, final DType dType, final Shape shape )
 	{
 		this.sharedMemoryArray = sharedMemoryArray;
-		this.primitiveType = primitiveType;
+		this.dType = dType;
 		this.shape = shape;
 	}
 
-	public NDArray( final PrimitiveType primitiveType, final Shape shape )
+	public NDArray( final DType dType, final Shape shape )
 	{
 		this( SharedMemoryArray.create(
-				safeInt( shape.numElements() * primitiveType.getByteCount() )
-		), primitiveType, shape );
+				safeInt( shape.numElements() * dType.bytesPerElement() )
+		), dType, shape );
 	}
 
 	public < T extends NativeType< T > > NDArray( final T type, final int... dimensions )
 	{
-		this( type.getNativeTypeFactory().getPrimitiveType(), new Shape( F_ORDER, dimensions ) );
+		this( DTypeUtils.dtype( type ), new Shape( F_ORDER, dimensions ) );
 	}
 
 	@Override
 	public void close() throws IOException
 	{
-		if ( isOwner )
-			sharedMemoryArray.close();
+		sharedMemoryArray.close(); // TODO reference counting or check for existence
 	}
 
-	public PrimitiveType primitiveType()
+	public DType dType()
 	{
-		return primitiveType;
+		return dType;
 	}
 
 	public Shape shape()
@@ -64,7 +60,7 @@ public class NDArray implements Closeable
 
 	public ByteBuffer buffer()
 	{
-		final long length = shape.numElements() * primitiveType.getByteCount();
+		final long length = shape.numElements() * dType.bytesPerElement();
 		return sharedMemoryArray.getPointer().getByteBuffer( 0, length );
 	}
 

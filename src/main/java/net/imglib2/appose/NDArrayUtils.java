@@ -17,10 +17,12 @@ public class NDArrayUtils
 			final NDArray ndArray,
 			final T type )
 	{
-		if ( !Objects.equals( type.getNativeTypeFactory().getPrimitiveType(), ndArray.primitiveType() ) )
+		if ( !Objects.equals(
+				type.getNativeTypeFactory().getPrimitiveType(),
+				DTypeUtils.primitiveType( ndArray.dType() ) ) )
 			throw new IllegalArgumentException();
 
-		final long[] dimensions = ndArray.shape().with( F_ORDER ).dimensions().dimensionsAsLongArray(); // TODO: should Shape implement dimensions?
+		final long[] dimensions = ndArray.shape().with( F_ORDER ).dimensions().dimensionsAsLongArray();
 		final Fraction entitiesPerPixel = type.getEntitiesPerPixel();
 		@SuppressWarnings( { "unchecked", "rawtypes" } )
 		final NativeTypeFactory< T, ? super A > typeFactory = ( NativeTypeFactory ) type.getNativeTypeFactory();
