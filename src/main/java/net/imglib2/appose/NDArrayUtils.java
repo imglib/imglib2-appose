@@ -1,8 +1,11 @@
 package net.imglib2.appose;
 
-import static net.imglib2.appose.Shape.Order.F_ORDER;
+import static org.apposed.appose.ndarray.Shape.Order.F_ORDER;
 
 import java.util.Objects;
+
+import org.apposed.appose.ndarray.NDArray;
+import org.apposed.appose.ndarray.Shape;
 
 import net.imglib2.img.array.ArrayImg;
 import net.imglib2.img.basictypeaccess.nio.BufferAccess;
@@ -13,11 +16,10 @@ import net.imglib2.util.Fraction;
 
 public class NDArrayUtils
 {
-	public < T extends NativeType< T > > NDArray ndArray( final T type, final int... dimensions )
+	public static < T extends NativeType< T > > NDArray ndArray( final T type, final int... dimensions )
 	{
-		return new NDArray( DTypeUtils.dtype( type ), new net.imglib2.appose.Shape( F_ORDER, dimensions ) );
+		return new NDArray( DTypeUtils.dtype( type ), new Shape( F_ORDER, dimensions ) );
 	}
-
 
 	static < T extends NativeType< T >, A extends BufferAccess< A > > ArrayImg< T, A > asArrayImg(
 			final NDArray ndArray,
@@ -28,7 +30,8 @@ public class NDArrayUtils
 				DTypeUtils.primitiveType( ndArray.dType() ) ) )
 			throw new IllegalArgumentException();
 
-		final long[] dimensions = ndArray.shape().with( F_ORDER ).dimensions().dimensionsAsLongArray();
+//		final long[] dimensions = ndArray.shape().to( F_ORDER ).toLongArray();
+		final long[] dimensions = ndArray.shape().toLongArray( F_ORDER );
 		final Fraction entitiesPerPixel = type.getEntitiesPerPixel();
 		@SuppressWarnings( { "unchecked", "rawtypes" } )
 		final NativeTypeFactory< T, ? super A > typeFactory = ( NativeTypeFactory ) type.getNativeTypeFactory();

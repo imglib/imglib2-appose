@@ -29,22 +29,18 @@
 
 package net.imglib2.appose;
 
-import static net.imglib2.appose.Shape.Order.C_ORDER;
+import static org.apposed.appose.ndarray.Shape.Order.C_ORDER;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apposed.appose.Appose;
 import org.apposed.appose.Environment;
 import org.apposed.appose.Service;
 import org.apposed.appose.Service.Task;
-import org.apposed.appose.shm.SharedMemoryArray;
+import org.apposed.appose.ndarray.NDArray;
 
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.img.array.ArrayImg;
-import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.type.numeric.real.FloatType;
 
 public class PlaygroundNDArray
@@ -53,11 +49,9 @@ public class PlaygroundNDArray
 	{
 		final FloatType type = new FloatType();
 
-//		final NDArray ndArray = new NDArray(
-//				type.getNativeTypeFactory().getPrimitiveType(),
-//				new Shape( Shape.Order.C_ORDER, 2, 3, 4 ) );
+		final NDArray ndArray = NDArrayUtils.ndArray( type, 4, 3, 2 );
+//		final NDArray ndArray = new NDArray( DTypeUtils.dtype( type ), new Shape( F_ORDER, 4, 3, 2 ) );
 
-		final NDArray ndArray = new NDArray( type, 4, 3, 2 );
 		final RandomAccessibleInterval< FloatType > img = NDArrayUtils.asArrayImg( ndArray, type );
 
 		int i = 0;
@@ -79,12 +73,10 @@ public class PlaygroundNDArray
 					ndArray.shm().name(),
 					ndArray.shape().numElements(),
 					ndArray.dType().bytesPerElement(),
-					Arrays.toString( ndArray.shape().asIntArray( C_ORDER ) ),
+					Arrays.toString( ndArray.shape().toIntArray( C_ORDER ) ),
 					ndArray.dType().label() );
 			System.out.println( script );
 //			final Map< String, Object > inputs = new HashMap<>();
-			// TODO: Add interface for json-ifying things
-			//       problem is with (automatic) reconstruction from json
 //			inputs.put( "img", ndArray);
 //			Task task = service.task( script, inputs );
 			Task task = service.task( script );

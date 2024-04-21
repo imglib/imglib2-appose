@@ -4,7 +4,6 @@ import groovy.json.JsonGenerator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
-import net.imglib2.appose.NDArray;
 import org.apposed.appose.shm.SharedMemoryArray;
 
 import static net.imglib2.appose.Shape.Order.C_ORDER;

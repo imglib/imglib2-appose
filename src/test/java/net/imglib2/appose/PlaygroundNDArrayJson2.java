@@ -32,13 +32,14 @@ package net.imglib2.appose;
 import java.io.IOException;
 import net.imglib2.type.numeric.real.FloatType;
 import org.apposed.appose.ndarray.JsonUtils;
+import org.apposed.appose.ndarray.NDArray;
 
 public class PlaygroundNDArrayJson2
 {
 	public static void main( String[] args ) throws IOException, InterruptedException
 	{
 		final FloatType type = new FloatType();
-		final NDArray ndArray = new NDArray( type, 4, 3, 2 );
+		final NDArray ndArray = NDArrayUtils.ndArray( type, 4, 3, 2 );
 
 		System.out.println( "the_json = '" + JsonUtils.toJson( ndArray ) + "'" );
 
