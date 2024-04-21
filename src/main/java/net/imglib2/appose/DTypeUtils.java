@@ -2,6 +2,8 @@ package net.imglib2.appose;
 
 import java.util.function.Supplier;
 
+import org.apposed.appose.ndarray.DType;
+
 import net.imglib2.type.NativeType;
 import net.imglib2.type.PrimitiveType;
 import net.imglib2.type.logic.NativeBoolType;

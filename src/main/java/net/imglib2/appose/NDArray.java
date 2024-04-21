@@ -6,6 +6,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import org.apposed.appose.ndarray.DType;
 import org.apposed.appose.shm.SharedMemoryArray;
 
 import net.imglib2.type.NativeType;

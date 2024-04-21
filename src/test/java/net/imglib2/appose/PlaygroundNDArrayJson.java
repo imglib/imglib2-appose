@@ -110,22 +110,4 @@ public class PlaygroundNDArrayJson
 		}
 //		ndArray.close();
 	}
-
-	// TODO: send NDArray in task.inputs as JSON
-
-	// Format string arguments:
-	//  - (String) name of the shared memory segment
-	//  - (int) number of elements in the segment
-	//  - (int) number of bytes per element
-	//  - (String) shape formatted like "[1,2,3]"
-	//  - TODO: send dtype too
-	private static final String PRINT_NDARRAY = "" + //
-			"from multiprocessing import shared_memory\n" + //
-			"import numpy as np\n" + //
-			"size = %2$d\n" + //
-			"bytes_per_element = %3$d\n" + //
-			"im_shm = shared_memory.SharedMemory(name='%1$s', size=size * bytes_per_element)\n" + //
-			"arr = np.ndarray(size, dtype='float32', buffer=im_shm.buf).reshape(%4$s)\n" + //
-			"task.outputs['result'] = str(arr)\n" + //
-			"im_shm.unlink()";
 }

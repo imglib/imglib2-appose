@@ -1,4 +1,4 @@
-package net.imglib2.appose;
+package org.apposed.appose.ndarray;
 
 public enum DType
 {
@@ -35,19 +35,6 @@ public enum DType
 	{
 		return bytesPerElement;
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 	// --- maybe ? --
 

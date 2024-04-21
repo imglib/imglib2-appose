@@ -13,6 +13,12 @@ import net.imglib2.util.Fraction;
 
 public class NDArrayUtils
 {
+	public < T extends NativeType< T > > NDArray ndArray( final T type, final int... dimensions )
+	{
+		return new NDArray( DTypeUtils.dtype( type ), new net.imglib2.appose.Shape( F_ORDER, dimensions ) );
+	}
+
+
 	static < T extends NativeType< T >, A extends BufferAccess< A > > ArrayImg< T, A > asArrayImg(
 			final NDArray ndArray,
 			final T type )
