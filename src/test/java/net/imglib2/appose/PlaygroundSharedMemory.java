@@ -35,23 +35,23 @@ import org.apposed.appose.Appose;
 import org.apposed.appose.Environment;
 import org.apposed.appose.Service;
 import org.apposed.appose.Service.Task;
-import org.apposed.appose.shm.SharedMemoryArray;
+import org.apposed.appose.SharedMemory;
 
 public class PlaygroundSharedMemory
 {
-	public static void main( String[] args ) throws IOException, InterruptedException
+	public static void main( String[] args ) throws Exception
 	{
 		final float[] buf = new float[ 24 ];
 		for ( int i = 0; i < buf.length; i++ )
 			buf[ i ] = i;
 
-		final SharedMemoryArray shm = SharedMemoryArray.create( buf.length * Float.BYTES );
-		shm.getPointer().write( 0, buf, 0, buf.length );
+		final SharedMemory shm = new SharedMemory(null, true, buf.length * Float.BYTES);
+		shm.pointer().write( 0, buf, 0, buf.length );
 
 		final Environment env = Appose.base( "/opt/homebrew/Caskroom/miniforge/base/envs/appose/" ).build();
 		try ( Service service = env.python() )
 		{
-			final String script = String.format( PRINT_NDARRAY, shm.getNameForPython() );
+			final String script = String.format( PRINT_NDARRAY, shm.name() );
 //			System.out.println( script );
 			Task task = service.task( script );
 			task.waitFor();

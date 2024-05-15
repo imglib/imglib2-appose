@@ -1,11 +1,10 @@
 package net.imglib2.appose;
 
-import static org.apposed.appose.ndarray.Shape.Order.F_ORDER;
+import static org.apposed.appose.NDArray.Shape.Order.F_ORDER;
 
 import java.util.Objects;
 
-import org.apposed.appose.ndarray.NDArray;
-import org.apposed.appose.ndarray.Shape;
+import org.apposed.appose.NDArray;
 
 import net.imglib2.img.array.ArrayImg;
 import net.imglib2.img.basictypeaccess.nio.BufferAccess;
@@ -18,7 +17,7 @@ public class NDArrayUtils
 {
 	public static < T extends NativeType< T > > NDArray ndArray( final T type, final int... dimensions )
 	{
-		return new NDArray( DTypeUtils.dtype( type ), new Shape( F_ORDER, dimensions ) );
+		return new NDArray( DTypeUtils.dtype( type ), new NDArray.Shape( F_ORDER, dimensions ) );
 	}
 
 	static < T extends NativeType< T >, A extends BufferAccess< A > > ArrayImg< T, A > asArrayImg(
