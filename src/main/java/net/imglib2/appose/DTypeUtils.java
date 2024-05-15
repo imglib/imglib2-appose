@@ -20,8 +20,25 @@ import net.imglib2.type.numeric.integer.UnsignedShortType;
 import net.imglib2.type.numeric.real.DoubleType;
 import net.imglib2.type.numeric.real.FloatType;
 
-class DTypeUtils
+/**
+ * Conversion between Appose and ImgLib2 types
+ */
+public class DTypeUtils
 {
+	/**
+	 * Get the Appose {@link DType} corresponding to the specified ImgLib2
+	 * {@code NativeType}.
+	 *
+	 * @param type
+	 * 		type instance
+	 * @param <T>ImgLib2
+	 * 		pixel type
+	 *
+	 * @return the Appose {@code DType} corresponding ot {@code type}.
+	 *
+	 * @throws IllegalArgumentException
+	 * 		if {@code type} has no corresponding {@code DType}
+	 */
 	public static < T extends NativeType< T > > DType dtype( final T type )
 	{
 		if ( type instanceof ByteType )
@@ -54,6 +71,15 @@ class DTypeUtils
 			throw new IllegalArgumentException();
 	}
 
+	/**
+	 * Get the ImgLib2 {@code NativeType} corresponding to the given Appose
+	 * {@link DType}.
+	 *
+	 * @param dType
+	 * 		Appose type
+	 *
+	 * @return a Supplier of ImgLib2 {@code NativeType} corresponding to {@code dType}.
+	 */
 	public static Supplier< ? extends NativeType< ? > > type( final DType dType )
 	{
 		switch ( dType )
@@ -89,6 +115,14 @@ class DTypeUtils
 		}
 	}
 
+	/**
+	 * Get the {@link PrimitiveType} underlying the given Appose {@link DType}.
+	 *
+	 * @param dType
+	 * 		Appose type
+	 *
+	 * @return the primitive type underlying {@code dType}.
+	 */
 	public static PrimitiveType primitiveType( final DType dType )
 	{
 		switch ( dType )
