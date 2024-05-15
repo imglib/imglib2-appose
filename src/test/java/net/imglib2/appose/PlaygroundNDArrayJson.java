@@ -29,16 +29,16 @@
 
 package net.imglib2.appose;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import net.imglib2.img.Img;
 import net.imglib2.type.numeric.real.FloatType;
 import org.apposed.appose.Appose;
 import org.apposed.appose.Environment;
+import org.apposed.appose.NDArray;
 import org.apposed.appose.Service;
 import org.apposed.appose.Service.Task;
-import org.apposed.appose.NDArray;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class PlaygroundNDArrayJson
 {
@@ -64,7 +64,6 @@ public class PlaygroundNDArrayJson
 		}
 		ndArray.close();
 	}
-
 
 	private static final String PRINT_INPUT = "" + //
 		"import numpy as np\n" + //
