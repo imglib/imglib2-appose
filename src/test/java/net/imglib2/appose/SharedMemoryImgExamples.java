@@ -29,6 +29,8 @@
 
 package net.imglib2.appose;
 
+import static net.imglib2.appose.NDArrayUtils.asNDArray;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,8 +57,9 @@ public class SharedMemoryImgExamples
 	{
 //		version1();
 //		version2();
-		version3();
+//		version3();
 //		version4();
+		version5();
 	}
 
 	private static final String PRINT_INPUT = "" + //
@@ -91,6 +94,8 @@ public class SharedMemoryImgExamples
 		ndArray.close();
 	}
 
+
+
 	/**
 	 * We create SharedMemoryImg, which creates and wraps a NDArray internally.
 	 * <p>
@@ -99,7 +104,7 @@ public class SharedMemoryImgExamples
 	 */
 	public static void version2() throws Exception
 	{
-		final SharedMemoryImg< FloatType > img = new SharedMemoryImg<>( FloatType::new, 4, 3, 2 );
+		final SharedMemoryImg< FloatType > img = new SharedMemoryImg<>( new FloatType(), 4, 3, 2 );
 
 		int i = 0;
 		for (FloatType t : img)
@@ -129,7 +134,7 @@ public class SharedMemoryImgExamples
 	 */
 	public static void version3() throws Exception
 	{
-		final Img< FloatType > img = new SharedMemoryImg<>( FloatType::new, 4, 3, 2 );
+		final Img< FloatType > img = new SharedMemoryImg<>( new FloatType(), 4, 3, 2 );
 
 		int i = 0;
 		for (FloatType t : img)
@@ -156,9 +161,6 @@ public class SharedMemoryImgExamples
 		} );
 		return inputs;
 	}
-
-
-
 
 
 
@@ -200,18 +202,44 @@ public class SharedMemoryImgExamples
 	{
 		inputs.entrySet().forEach( entry -> {
 			final Object value = entry.getValue();
-			if ( value instanceof SharedMemoryImg )
+			if ( value instanceof RandomAccessibleInterval )
 			{
-				entry.setValue( ( ( SharedMemoryImg< ? > ) value ).ndArray() );
-			}
-			else if ( value instanceof RandomAccessibleInterval )
-			{
-				RandomAccessibleInterval rai = ( RandomAccessibleInterval ) value;
-				if ( rai.getType() instanceof NativeType ) {
-					entry.setValue( SharedMemoryImg.copyOf( rai ).ndArray() );
-				}
+				final RandomAccessibleInterval rai = ( RandomAccessibleInterval ) value;
+				if ( rai.getType() instanceof NativeType )
+					entry.setValue( asNDArray( rai, true ) );
 			}
 		} );
 		return inputs;
+	}
+
+
+
+	/**
+	 * We create a "normal" ArrayImg (or any other RandomAccessibleInterval),
+	 * and put it into the Appose inputs using {@link
+	 * NDArrayUtils#asNDArray(RandomAccessibleInterval)}.
+	 * <p>
+	 * This works with {@link SharedMemoryImg} and other {@code
+	 * RandomAccessibleInterval}s, both. It either extracts the wrapped {@code
+	 * NDArray}, or copies into a new one.
+	 */
+	public static void version5() throws Exception
+	{
+		final Img< FloatType > img = ArrayImgs.floats( 4, 3, 2 );
+
+		int i = 0;
+		for (FloatType t : img)
+			t.set(i++);
+
+		final Environment env = Appose.base( "/opt/homebrew/Caskroom/miniforge/base/envs/appose/" ).build();
+		try ( Service service = env.python() )
+		{
+			final Map< String, Object > inputs = new HashMap<>();
+			inputs.put( "img", asNDArray(img));
+			Task task = service.task(PRINT_INPUT, inputs );
+			task.waitFor();
+			final String result = ( String ) task.outputs.get( "result" );
+			System.out.println( "result = \n" + result );
+		}
 	}
 }

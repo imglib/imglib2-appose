@@ -7,6 +7,7 @@ import java.util.Objects;
 import org.apposed.appose.DType;
 import org.apposed.appose.NDArray;
 
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.array.ArrayImg;
 import net.imglib2.img.basictypeaccess.nio.BufferAccess;
 import net.imglib2.img.basictypeaccess.nio.BufferDataAccessFactory;
@@ -90,5 +91,65 @@ public class NDArrayUtils
 		final ArrayImg< T, A > img = new ArrayImg<>( data, dimensions, entitiesPerPixel );
 		img.setLinkedType( typeFactory.createLinkedType( img ) );
 		return img;
+	}
+
+	/**
+	 * Returns a {@code RandomAccessibleInterval} as an Appose {@code NDArray}.
+	 * <p>
+	 * If the provided {@code rai} is a {@code SharedMemoryImg}, then the
+	 * wrapped {@link SharedMemoryImg#ndArray()} is returned.
+	 * <p>
+	 * Otherwise, if {@code rai} is not a {@code SharedMemoryImg}, it is copied
+	 * into a new {@code NDArray} if {@code allowCopy==true}.
+	 * <p>
+	 * If {@code rai} is not a {@code SharedMemoryImg} and {@code
+	 * allowCopy==false}, an {@code IllegalArgumentException} is thrown.
+	 *
+	 * @param rai
+	 * 		image
+	 * @param allowCopy
+	 * 		specifies what to do if {@code rai} is not a {@code SharedMemoryImg}.
+	 * 		If {@code allowCopy==true} then {@code rai} is copied into a new {@code NDArray}.
+	 * 		If {@code allowCopy==false} then an {@code IllegalArgumentException} is thrown.
+	 * @param <T>
+	 * 		pixel type
+	 *
+	 * @return {@code NDArray} that is wrapped by {@code rai}, or, if {@code rai} does not wrap one then a new {@code NDArray} copy.
+	 *
+	 * @throws IllegalArgumentException
+	 * 		if the provided image is not a {@code SharedMemoryImg} and copying data is not allowed
+	 */
+	public static < T extends NativeType< T > > NDArray asNDArray( final RandomAccessibleInterval< T > rai, final boolean allowCopy )
+	{
+		if ( rai instanceof SharedMemoryImg )
+			return ( ( SharedMemoryImg< ? > ) rai ).ndArray();
+		else if ( allowCopy )
+			return SharedMemoryImg.copyOf( rai ).ndArray();
+		else
+			throw new IllegalArgumentException( "The provided RandomAccessibleInterval is not a SharedMemoryImg" );
+	}
+
+	/**
+	 * Returns a {@code RandomAccessibleInterval} as an Appose {@code NDArray}.
+	 * <p>
+	 * If the provided {@code rai} is a {@code SharedMemoryImg}, then the
+	 * wrapped {@link SharedMemoryImg#ndArray()} is returned.
+	 * <p>
+	 * Otherwise, if {@code rai} is not a {@code SharedMemoryImg}, it is copied
+	 * into a new {@code NDArray}.
+	 *
+	 * @param rai
+	 * 		image
+	 * @param <T>
+	 * 		pixel type
+	 *
+	 * @return {@code NDArray} that is wrapped by {@code rai}, or, if {@code rai} does not wrap one then a new {@code NDArray} copy.
+	 *
+	 * @throws IllegalArgumentException
+	 * 		if the provided image is not a {@code SharedMemoryImg} and copying data is not allowed
+	 */
+	public static < T extends NativeType< T > > NDArray asNDArray( final RandomAccessibleInterval< T > rai )
+	{
+		return asNDArray( rai, true );
 	}
 }
