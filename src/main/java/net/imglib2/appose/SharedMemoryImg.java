@@ -1,7 +1,5 @@
 package net.imglib2.appose;
 
-import java.util.function.Supplier;
-
 import org.apposed.appose.NDArray;
 
 import net.imglib2.Cursor;
@@ -44,18 +42,25 @@ public class SharedMemoryImg< T extends NativeType< T > > implements RandomAcces
 	}
 
 	/**
+	 * Wrap the specified {@code ndArray} as an {@code SharedMemoryImg} with matching type.
 	 *
-	 * @param typeSupplier
+	 * @param ndArray
+	 */
+	public SharedMemoryImg( final NDArray ndArray )
+	{
+		this.ndArray = ndArray;
+		this.img = NDArrayUtils.asArrayImg( ndArray );
+	}
+
+	/**
+	 * Create a {@code SharedMemoryImg} of the given type and size.
+	 *
+	 * @param type
 	 * @param dimensions
 	 * @throws IllegalArgumentException
 	 * 		if dimensions are too large for the data to fit in an {@code ArrayImg}
 	 */
-	public SharedMemoryImg( final Supplier< T > typeSupplier, final int... dimensions  )
-	{
-		this( typeSupplier.get(), dimensions );
-	}
-
-	private SharedMemoryImg( final T type, final int... dimensions )
+	public SharedMemoryImg( final T type, final int... dimensions  )
 	{
 		this( type, NDArrayUtils.ndArray( type, dimensions ) );
 	}
