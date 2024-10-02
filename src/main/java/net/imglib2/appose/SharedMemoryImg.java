@@ -44,7 +44,7 @@ public class SharedMemoryImg< T extends NativeType< T > > implements RandomAcces
 	/**
 	 * Wrap the specified {@code ndArray} as an {@code SharedMemoryImg} with matching type.
 	 *
-	 * @param ndArray
+	 * @param ndArray the array to wrap.
 	 */
 	public SharedMemoryImg( final NDArray ndArray )
 	{
@@ -55,8 +55,8 @@ public class SharedMemoryImg< T extends NativeType< T > > implements RandomAcces
 	/**
 	 * Create a {@code SharedMemoryImg} of the given type and size.
 	 *
-	 * @param type
-	 * @param dimensions
+	 * @param type the type of the image.
+	 * @param dimensions the dimensions of the image.
 	 * @throws IllegalArgumentException
 	 * 		if dimensions are too large for the data to fit in an {@code ArrayImg}
 	 */
@@ -198,6 +198,7 @@ public class SharedMemoryImg< T extends NativeType< T > > implements RandomAcces
 		}
 
 		@Override
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public < S > ImgFactory< S > imgFactory( final S type ) throws IncompatibleTypeException
 		{
 			if ( type instanceof NativeType )
