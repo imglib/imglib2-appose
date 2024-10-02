@@ -4,8 +4,8 @@ import static org.apposed.appose.NDArray.Shape.Order.F_ORDER;
 
 import java.util.Objects;
 
-import org.apposed.appose.DType;
 import org.apposed.appose.NDArray;
+import org.apposed.appose.NDArray.DType;
 
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.array.ArrayImg;

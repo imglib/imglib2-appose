@@ -1,7 +1,5 @@
 # ImgLib2 Appose helpers
 
-***WARNING: Appose is currently in incubation.***
-
 [Appose](https://github.com/apposed/appose) is a library for interprocess cooperation with shared memory.
 The guiding principles are *simplicity* and *efficiency*.
 

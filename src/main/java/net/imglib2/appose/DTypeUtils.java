@@ -2,7 +2,7 @@ package net.imglib2.appose;
 
 import java.util.function.Supplier;
 
-import org.apposed.appose.DType;
+import org.apposed.appose.NDArray.DType;
 
 import net.imglib2.type.NativeType;
 import net.imglib2.type.PrimitiveType;
