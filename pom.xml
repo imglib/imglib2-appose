@@ -14,7 +14,7 @@
 	<version>0.3.0-SNAPSHOT</version>
 
 	<name>ImgLib2 Appose</name>
-	<description>Prototyping Appose SharedMemoryArray integration</description>
+	<description>Appose NDArray integration</description>
 	<url>https://imglib2.net/</url>
 	<inceptionYear>2024</inceptionYear>
 	<organization>
