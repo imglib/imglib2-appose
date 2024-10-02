@@ -35,6 +35,7 @@ import net.imglib2.img.array.ArrayImgs;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.real.FloatType;
 import org.apposed.appose.Appose;
+import org.apposed.appose.Environment;
 import org.apposed.appose.NDArray;
 import org.apposed.appose.Service;
 import org.apposed.appose.Service.Task;
@@ -222,6 +223,49 @@ public class SharedMemoryImgTest
 		final Map< String, Object > inputs = new HashMap<>();
 		inputs.put( "img", asNDArray(img) );
 		doTask( python, PRINT_INPUT, inputs );
+	}
+
+	/**
+	 * Create an Img, pass it through Appose as an NDArray, wrap it as a
+	 * SharedMemoryImg on the other end.
+	 */
+	@Test
+	public void groovy() throws Exception
+	{
+		final Img< FloatType > img = ArrayImgs.floats(
+			new float[] {
+				0, 1, 2,
+				3, 4, 5 },
+			3, 2 );
+
+		// Pass our same classpath to the Groovy worker.
+		final List< String > classpath = Arrays.asList(
+			System.getProperty( "java.class.path" ).split("[:;]")
+		);
+		Environment env = Appose.system();
+		try ( Service service = env.groovy( classpath ) )
+		{
+			final Map< String, Object > inputs = new HashMap<>();
+			inputs.put( "ndarray", asNDArray( img ) );
+			String script =
+				"import net.imglib2.appose.SharedMemoryImg\n" +
+				"SharedMemoryImg img = new SharedMemoryImg(ndarray)\n" +
+				"return img.collect { it.get() }\n";
+			Service.Task task = service.task( script, inputs );
+			task.waitFor();
+			assertSame( Service.TaskStatus.COMPLETE, task.status, task.error );
+			Object result = task.outputs.get( "result" );
+			assertInstanceOf( List.class, result );
+			@SuppressWarnings("unchecked")
+			List< Object > values = ( List< Object > ) result;
+			for ( int i = 0; i < values.size(); i++ )
+			{
+				Object value = values.get(i);
+				assertInstanceOf( Number.class, value );
+				Number number = ( Number ) value;
+				assertEquals( i, number.floatValue() );
+			}
+		}
 	}
 
 	private List< String > doTask(Service service, String script, Map< String, Object > inputs ) throws IOException, InterruptedException
