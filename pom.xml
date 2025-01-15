@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>38.0.1</version>
+		<version>40.0.0</version>
 		<relativePath />
 	</parent>
 
@@ -32,7 +32,7 @@
 		<developer>
 			<id>tpietzsch</id>
 			<name>Tobias Pietzsch</name>
-			<url>https://imagej.net/User:Pietzsch</url>
+			<url>https://imagej.net/people/tpietzsch</url>
 			<roles>
 				<role>lead</role>
 				<role>developer</role>
@@ -45,7 +45,7 @@
 		<developer>
 			<id>ctrueden</id>
 			<name>Curtis Rueden</name>
-			<url>https://imagej.net/User:Rueden</url>
+			<url>https://imagej.net/people/ctrueden</url>
 			<roles>
 				<role>maintainer</role>
 			</roles>
@@ -88,11 +88,6 @@
 		<license.copyrightOwners>Tobias Pietzsch and Curtis Rueden.</license.copyrightOwners>
 
 		<appose.version>0.3.0</appose.version>
-
-		<!-- Dependency versions built on ImgLib2 v7 -->
-		<imglib2.version>7.1.2</imglib2.version>
-		<bigdataviewer-core.version>10.6.1</bigdataviewer-core.version>
-		<bigdataviewer-vistools.version>1.0.0-beta-36</bigdataviewer-vistools.version>
 	</properties>
 
 	<repositories>
