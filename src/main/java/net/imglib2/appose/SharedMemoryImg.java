@@ -53,7 +53,7 @@ import net.imglib2.util.Util;
  *
  * @param <T>
  */
-public class SharedMemoryImg< T extends NativeType< T > > implements RandomAccessibleInterval< T >, WrappedImg< T >, Img< T >
+public class SharedMemoryImg< T extends NativeType< T > > implements RandomAccessibleInterval< T >, WrappedImg< T >, Img< T >, AutoCloseable
 {
 	private final NDArray ndArray;
 
@@ -210,6 +210,12 @@ public class SharedMemoryImg< T extends NativeType< T > > implements RandomAcces
 	public Img< T > copy()
 	{
 		return copyOf( this );
+	}
+
+	@Override
+	public void close()
+	{
+		ndArray().close();
 	}
 
 	private static class SharedMemoryImgFactory< T extends NativeType< T > > extends ImgFactory< T >
