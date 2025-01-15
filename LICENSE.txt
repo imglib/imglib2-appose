@@ -1,4 +1,4 @@
-Copyright (c) 2024, Tobias Pietzsch and Curtis Rueden.
+Copyright (c) 2024 - 2025, Tobias Pietzsch and Curtis Rueden.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,

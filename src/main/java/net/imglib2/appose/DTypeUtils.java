@@ -2,7 +2,7 @@
  * #%L
  * ImgLib2: a general-purpose, multidimensional image processing library.
  * %%
- * Copyright (C) 2024 Tobias Pietzsch and Curtis Rueden.
+ * Copyright (C) 2024 - 2025 Tobias Pietzsch and Curtis Rueden.
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
