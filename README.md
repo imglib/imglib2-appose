@@ -9,9 +9,9 @@ This repository relies on the following PRs:
 
 ## Usage
 
-`net.imglib2.appose.NDArrayUtils` contains static methods for working with Appose `NDArray`, most importantly:
+`net.imglib2.appose.NDArrays` contains static methods for working with Appose `NDArray`, most importantly:
 ```java
-NDArray ndArray = NDArrayUtils.asNDArray(img);
+NDArray ndArray = NDArrays.asNDArray(img);
 ```
 creates a `NDArray` with shape and data type corresponding to the shape and
 ImgLib2 type (must be `NativeType`) of the image.
@@ -19,7 +19,7 @@ This can be put into Appose Task `inputs`.
 See [these examples](https://github.com/imglib/imglib2-appose/blob/6ae502b919588b880fe1b30700b914d3733407a3/src/test/java/net/imglib2/appose/SharedMemoryImgExamples.java).
 
 `net.imglib2.appose.SharedMemoryImg<T>` is a `Img<T>` implementation that wraps an `ArrayImg` that wraps a `NDArray`.
-If a `SharedMemoryImg` is passed to `NDArrayUtils.asNDArray(img)` then the wrapped `NDArray` is returned directly. So, no copying.
+If a `SharedMemoryImg` is passed to `NDArrays.asNDArray(img)` then the wrapped `NDArray` is returned directly. So, no copying.
 
 Create a `SharedMemoryImg<T>` with
 ```java

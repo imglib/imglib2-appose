@@ -51,7 +51,7 @@ import net.imglib2.type.numeric.real.FloatType;
 /**
  * Conversion between Appose and ImgLib2 types
  */
-public class DTypeUtils
+public class DTypes
 {
 	/**
 	 * Get the Appose {@link DType} corresponding to the specified ImgLib2

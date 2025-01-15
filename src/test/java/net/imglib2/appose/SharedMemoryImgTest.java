@@ -93,9 +93,9 @@ public class SharedMemoryImgTest
 	public void ndArrayToPython() throws Exception
 	{
 		final FloatType type = new FloatType();
-		try ( final NDArray ndArray = NDArrayUtils.ndArray( type, 4, 3, 2 ) )
+		try ( final NDArray ndArray = NDArrays.ndArray( type, 4, 3, 2 ) )
 		{
-			final Img< FloatType > img = NDArrayUtils.asArrayImg( ndArray, type );
+			final Img< FloatType > img = NDArrays.asArrayImg( ndArray, type );
 
 			int i = 0;
 			for ( FloatType t : img )
@@ -132,7 +132,7 @@ public class SharedMemoryImgTest
 	 * {@link NDArray} internally.
 	 * <p>
 	 * We use it as {@link Img} and extract its {@link NDArray} using
-	 * {@link NDArrayUtils#asNDArray} so that we can pass it to Appose.
+	 * {@link NDArrays#asNDArray} so that we can pass it to Appose.
 	 * </p>
 	 */
 	@Test
@@ -144,13 +144,13 @@ public class SharedMemoryImgTest
 		for ( FloatType t : img )
 			t.set( i++ );
 
-		assertAccessibleFromPython( NDArrayUtils.asNDArray( img, false ) );
+		assertAccessibleFromPython( NDArrays.asNDArray( img, false ) );
 	}
 
 	/**
 	 * We create a "normal" ArrayImg (or any other
 	 * {@link RandomAccessibleInterval}) not backed by shared memory, then copy it
-	 * into an {@link NDArray} using {@link NDArrayUtils#asNDArray} so that we can
+	 * into an {@link NDArray} using {@link NDArrays#asNDArray} so that we can
 	 * pass it to Appose.
 	 * <p>
 	 * This works with {@link SharedMemoryImg} and other
@@ -167,7 +167,7 @@ public class SharedMemoryImgTest
 		for ( FloatType t : img )
 			t.set( i++ );
 
-		assertAccessibleFromPython( NDArrayUtils.asNDArray( img ) );
+		assertAccessibleFromPython( NDArrays.asNDArray( img ) );
 	}
 
 	/**
@@ -191,7 +191,7 @@ public class SharedMemoryImgTest
 		try ( Service service = env.groovy( classpath ) )
 		{
 			final Map< String, Object > inputs = new HashMap<>();
-			inputs.put( "ndarray", NDArrayUtils.asNDArray( img ) );
+			inputs.put( "ndarray", NDArrays.asNDArray( img ) );
 			String script =
 				"import net.imglib2.appose.SharedMemoryImg\n" +
 				"SharedMemoryImg img = new SharedMemoryImg(ndarray)\n" +

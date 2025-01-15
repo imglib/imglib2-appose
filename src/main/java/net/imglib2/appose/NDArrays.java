@@ -44,7 +44,7 @@ import net.imglib2.type.NativeTypeFactory;
 import net.imglib2.util.Cast;
 import net.imglib2.util.Fraction;
 
-public class NDArrayUtils
+public class NDArrays
 {
 	/**
 	 * Allocate an Appose {@link NDArray} with {@link DType} corresponding to
@@ -65,7 +65,7 @@ public class NDArrayUtils
 	 */
 	public static < T extends NativeType< T > > NDArray ndArray( final T type, final int... dimensions )
 	{
-		return new NDArray( DTypeUtils.dtype( type ), new NDArray.Shape( F_ORDER, dimensions ) );
+		return new NDArray( DTypes.dtype( type ), new NDArray.Shape( F_ORDER, dimensions ) );
 	}
 
 	/**
@@ -80,7 +80,7 @@ public class NDArrayUtils
 	 */
 	public static < T extends NativeType< T > > ArrayImg< T, ? > asArrayImg( final NDArray ndArray )
 	{
-		return asArrayImg( ndArray, Cast.unchecked( DTypeUtils.type( ndArray.dType() ).get() ) );
+		return asArrayImg( ndArray, Cast.unchecked( DTypes.type( ndArray.dType() ).get() ) );
 	}
 
 	/**
@@ -107,7 +107,7 @@ public class NDArrayUtils
 	{
 		if ( !Objects.equals(
 				type.getNativeTypeFactory().getPrimitiveType(),
-				DTypeUtils.primitiveType( ndArray.dType() ) ) )
+				DTypes.primitiveType( ndArray.dType() ) ) )
 			throw new IllegalArgumentException();
 
 		final long[] dimensions = ndArray.shape().toLongArray( F_ORDER );

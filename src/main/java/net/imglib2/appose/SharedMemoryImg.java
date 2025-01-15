@@ -77,7 +77,7 @@ public class SharedMemoryImg< T extends NativeType< T > > implements RandomAcces
 	public SharedMemoryImg( final NDArray ndArray )
 	{
 		this.ndArray = ndArray;
-		this.img = NDArrayUtils.asArrayImg( ndArray );
+		this.img = NDArrays.asArrayImg( ndArray );
 	}
 
 	/**
@@ -90,13 +90,13 @@ public class SharedMemoryImg< T extends NativeType< T > > implements RandomAcces
 	 */
 	public SharedMemoryImg( final T type, final int... dimensions  )
 	{
-		this( type, NDArrayUtils.ndArray( type, dimensions ) );
+		this( type, NDArrays.ndArray( type, dimensions ) );
 	}
 
 	private SharedMemoryImg( final T type, final NDArray ndArray )
 	{
 		this.ndArray = ndArray;
-		this.img = NDArrayUtils.asArrayImg( ndArray, type );
+		this.img = NDArrays.asArrayImg( ndArray, type );
 	}
 
 	/**
