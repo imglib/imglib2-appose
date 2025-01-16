@@ -16,21 +16,21 @@ NDArray ndArray = NDArrays.asNDArray(img);
 creates a `NDArray` with shape and data type corresponding to the shape and
 ImgLib2 type (must be `NativeType`) of the image.
 This can be put into Appose Task `inputs`.
-See [these examples](https://github.com/imglib/imglib2-appose/blob/6ae502b919588b880fe1b30700b914d3733407a3/src/test/java/net/imglib2/appose/SharedMemoryImgExamples.java).
+See [these examples](https://github.com/imglib/imglib2-appose/blob/-/src/test/java/net/imglib2/appose/ShmImgTest.java).
 
-`net.imglib2.appose.SharedMemoryImg<T>` is a `Img<T>` implementation that wraps an `ArrayImg` that wraps a `NDArray`.
-If a `SharedMemoryImg` is passed to `NDArrays.asNDArray(img)` then the wrapped `NDArray` is returned directly. So, no copying.
+`net.imglib2.appose.ShmImg<T>` is a `Img<T>` implementation that wraps an `ArrayImg` that wraps a `NDArray`.
+If a `ShmImg` is passed to `NDArrays.asNDArray(img)` then the wrapped `NDArray` is returned directly. So, no copying.
 
-Create a `SharedMemoryImg<T>` with
+Create a `ShmImg<T>` with
 ```java
-Img<FloatType> img = new SharedMemoryImg<>(new FloatType(), 4, 3, 2);
+Img<FloatType> img = new ShmImg<>(new FloatType(), 4, 3, 2);
 ```
 
 Wrap it around an existing `NDArray` using 
 ```java
 NDArray ndArray;
-Img<FloatType> img = new SharedMemoryImg<>(ndArray);
+Img<FloatType> img = new ShmImg<>(ndArray);
 ```
-(The `SharedMemoryImg` will have pixel type corresponding to the
+(The `ShmImg` will have pixel type corresponding to the
 `ndArray.dType()`. Here we assume that the dType is `FLOAT32`, so we assign it
 to `Img<FloatType>`.)

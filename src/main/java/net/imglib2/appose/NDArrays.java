@@ -124,19 +124,19 @@ public class NDArrays
 	/**
 	 * Returns a {@code RandomAccessibleInterval} as an Appose {@code NDArray}.
 	 * <p>
-	 * If the provided {@code rai} is a {@code SharedMemoryImg}, then the
-	 * wrapped {@link SharedMemoryImg#ndArray()} is returned.
+	 * If the provided {@code rai} is a {@code ShmImg}, then the
+	 * wrapped {@link ShmImg#ndArray()} is returned.
 	 * <p>
-	 * Otherwise, if {@code rai} is not a {@code SharedMemoryImg}, it is copied
+	 * Otherwise, if {@code rai} is not a {@code ShmImg}, it is copied
 	 * into a new {@code NDArray} if {@code allowCopy==true}.
 	 * <p>
-	 * If {@code rai} is not a {@code SharedMemoryImg} and {@code
+	 * If {@code rai} is not a {@code ShmImg} and {@code
 	 * allowCopy==false}, an {@code IllegalArgumentException} is thrown.
 	 *
 	 * @param rai
 	 * 		image
 	 * @param allowCopy
-	 * 		specifies what to do if {@code rai} is not a {@code SharedMemoryImg}.
+	 * 		specifies what to do if {@code rai} is not a {@code ShmImg}.
 	 * 		If {@code allowCopy==true} then {@code rai} is copied into a new {@code NDArray}.
 	 * 		If {@code allowCopy==false} then an {@code IllegalArgumentException} is thrown.
 	 * @param <T>
@@ -145,25 +145,25 @@ public class NDArrays
 	 * @return {@code NDArray} that is wrapped by {@code rai}, or, if {@code rai} does not wrap one then a new {@code NDArray} copy.
 	 *
 	 * @throws IllegalArgumentException
-	 * 		if the provided image is not a {@code SharedMemoryImg} and copying data is not allowed
+	 * 		if the provided image is not a {@code ShmImg} and copying data is not allowed
 	 */
 	public static < T extends NativeType< T > > NDArray asNDArray( final RandomAccessibleInterval< T > rai, final boolean allowCopy )
 	{
-		if ( rai instanceof SharedMemoryImg )
-			return ( ( SharedMemoryImg< ? > ) rai ).ndArray();
+		if ( rai instanceof ShmImg)
+			return ( (ShmImg< ? >) rai ).ndArray();
 		else if ( allowCopy )
-			return SharedMemoryImg.copyOf( rai ).ndArray();
+			return ShmImg.copyOf( rai ).ndArray();
 		else
-			throw new IllegalArgumentException( "The provided RandomAccessibleInterval is not a SharedMemoryImg" );
+			throw new IllegalArgumentException( "The provided RandomAccessibleInterval is not a ShmImg" );
 	}
 
 	/**
 	 * Returns a {@code RandomAccessibleInterval} as an Appose {@code NDArray}.
 	 * <p>
-	 * If the provided {@code rai} is a {@code SharedMemoryImg}, then the
-	 * wrapped {@link SharedMemoryImg#ndArray()} is returned.
+	 * If the provided {@code rai} is a {@code ShmImg}, then the
+	 * wrapped {@link ShmImg#ndArray()} is returned.
 	 * <p>
-	 * Otherwise, if {@code rai} is not a {@code SharedMemoryImg}, it is copied
+	 * Otherwise, if {@code rai} is not a {@code ShmImg}, it is copied
 	 * into a new {@code NDArray}.
 	 *
 	 * @param rai
@@ -174,7 +174,7 @@ public class NDArrays
 	 * @return {@code NDArray} that is wrapped by {@code rai}, or, if {@code rai} does not wrap one then a new {@code NDArray} copy.
 	 *
 	 * @throws IllegalArgumentException
-	 * 		if the provided image is not a {@code SharedMemoryImg} and copying data is not allowed
+	 * 		if the provided image is not a {@code ShmImg} and copying data is not allowed
 	 */
 	public static < T extends NativeType< T > > NDArray asNDArray( final RandomAccessibleInterval< T > rai )
 	{

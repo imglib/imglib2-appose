@@ -53,47 +53,47 @@ import net.imglib2.util.Util;
  *
  * @param <T>
  */
-public class SharedMemoryImg< T extends NativeType< T > > implements RandomAccessibleInterval< T >, WrappedImg< T >, Img< T >, AutoCloseable
+public class ShmImg< T extends NativeType< T > > implements RandomAccessibleInterval< T >, WrappedImg< T >, Img< T >, AutoCloseable
 {
 	private final NDArray ndArray;
 
 	private final ArrayImg< T, ? > img;
 
 	/**
-	 * Copy the given {@code RandomAccessibleInterval} into a new {@link SharedMemoryImg}.
+	 * Copy the given {@code RandomAccessibleInterval} into a new {@link ShmImg}.
 	 */
-	public static < T extends NativeType< T > > SharedMemoryImg< T > copyOf( RandomAccessibleInterval< T > rai )
+	public static < T extends NativeType< T > > ShmImg< T > copyOf(RandomAccessibleInterval< T > rai )
 	{
-		final SharedMemoryImg< T > copy = new SharedMemoryImg<>( rai.getType(), Util.long2int( rai.dimensionsAsLongArray() ) );
+		final ShmImg< T > copy = new ShmImg<>( rai.getType(), Util.long2int( rai.dimensionsAsLongArray() ) );
 		ImgUtil.copy( rai, copy );
 		return copy;
 	}
 
 	/**
-	 * Wrap the specified {@code ndArray} as an {@code SharedMemoryImg} with matching type.
+	 * Wrap the specified {@code ndArray} as an {@code ShmImg} with matching type.
 	 *
 	 * @param ndArray the array to wrap.
 	 */
-	public SharedMemoryImg( final NDArray ndArray )
+	public ShmImg(final NDArray ndArray )
 	{
 		this.ndArray = ndArray;
 		this.img = NDArrays.asArrayImg( ndArray );
 	}
 
 	/**
-	 * Create a {@code SharedMemoryImg} of the given type and size.
+	 * Create a {@code ShmImg} of the given type and size.
 	 *
 	 * @param type the type of the image.
 	 * @param dimensions the dimensions of the image.
 	 * @throws IllegalArgumentException
 	 * 		if dimensions are too large for the data to fit in an {@code ArrayImg}
 	 */
-	public SharedMemoryImg( final T type, final int... dimensions  )
+	public ShmImg(final T type, final int... dimensions  )
 	{
 		this( type, NDArrays.ndArray( type, dimensions ) );
 	}
 
-	private SharedMemoryImg( final T type, final NDArray ndArray )
+	private ShmImg(final T type, final NDArray ndArray )
 	{
 		this.ndArray = ndArray;
 		this.img = NDArrays.asArrayImg( ndArray, type );
@@ -203,7 +203,7 @@ public class SharedMemoryImg< T extends NativeType< T > > implements RandomAcces
 	@Override
 	public ImgFactory< T > factory()
 	{
-		return new SharedMemoryImgFactory<>( getType() );
+		return new ShmImgFactory<>( getType() );
 	}
 
 	@Override
@@ -218,9 +218,9 @@ public class SharedMemoryImg< T extends NativeType< T > > implements RandomAcces
 		ndArray().close();
 	}
 
-	private static class SharedMemoryImgFactory< T extends NativeType< T > > extends ImgFactory< T >
+	private static class ShmImgFactory< T extends NativeType< T > > extends ImgFactory< T >
 	{
-		SharedMemoryImgFactory( T type )
+		ShmImgFactory( T type )
 		{
 			super( type );
 		}
@@ -228,7 +228,7 @@ public class SharedMemoryImg< T extends NativeType< T > > implements RandomAcces
 		@Override
 		public Img< T > create( final long... dimensions )
 		{
-			return new SharedMemoryImg<>( type(), Util.long2int( dimensions ) );
+			return new ShmImg<>( type(), Util.long2int( dimensions ) );
 		}
 
 		@Override
@@ -236,7 +236,7 @@ public class SharedMemoryImg< T extends NativeType< T > > implements RandomAcces
 		public < S > ImgFactory< S > imgFactory( final S type ) throws IncompatibleTypeException
 		{
 			if ( type instanceof NativeType )
-				return new SharedMemoryImgFactory( ( NativeType ) type );
+				return new ShmImgFactory( ( NativeType ) type );
 			throw new IncompatibleTypeException( this, type.getClass().getCanonicalName() + " does not implement NativeType." );
 		}
 
@@ -244,7 +244,7 @@ public class SharedMemoryImg< T extends NativeType< T > > implements RandomAcces
 		@Deprecated
 		public Img< T > create( final long[] dim, final T type )
 		{
-			return new SharedMemoryImg<>( type, Util.long2int( dim ) );
+			return new ShmImg<>( type, Util.long2int( dim ) );
 		}
 	}
 }

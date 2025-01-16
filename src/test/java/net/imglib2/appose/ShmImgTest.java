@@ -59,7 +59,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Tests shared access to N-dimensional images between processes via Appose.
  */
-public class SharedMemoryImgTest
+public class ShmImgTest
 {
 	private static Service python;
 
@@ -67,7 +67,7 @@ public class SharedMemoryImgTest
 	public static void setUp() throws IOException
 	{
 		// Read environment.yml from test resources.
-		InputStream is = SharedMemoryImgTest.class.getResourceAsStream( "environment.yml" );
+		InputStream is = ShmImgTest.class.getResourceAsStream( "environment.yml" );
 		assertNotNull( is );
 		String envYaml = new BufferedReader( new InputStreamReader( is, StandardCharsets.UTF_8 ) )
 			.lines().collect( Collectors.joining( "\n" ) );
@@ -106,10 +106,10 @@ public class SharedMemoryImgTest
 	}
 
 	/**
-	 * We create a {@link SharedMemoryImg}, which creates and wraps an
+	 * We create a {@link ShmImg}, which creates and wraps an
 	 * {@link NDArray} internally.
 	 * <p>
-	 * We refer to it as a {@code SharedMemoryImg} (rather than a plain
+	 * We refer to it as a {@code ShmImg} (rather than a plain
 	 * {@code Img}) so that we can invoke the {@code .ndArray()} method for
 	 * passing the wrapped {@code NDArray} to Appose.
 	 * </p>
@@ -117,7 +117,7 @@ public class SharedMemoryImgTest
 	@Test
 	public void shmImgToPython() throws Exception
 	{
-		try ( final SharedMemoryImg< FloatType > img = new SharedMemoryImg<>( new FloatType(), 4, 3, 2 ) )
+		try ( final ShmImg< FloatType > img = new ShmImg<>( new FloatType(), 4, 3, 2 ) )
 		{
 			int i = 0;
 			for ( FloatType t : img )
@@ -128,7 +128,7 @@ public class SharedMemoryImgTest
 	}
 
 	/**
-	 * We create a {@link SharedMemoryImg}, which creates and wraps an
+	 * We create a {@link ShmImg}, which creates and wraps an
 	 * {@link NDArray} internally.
 	 * <p>
 	 * We use it as {@link Img} and extract its {@link NDArray} using
@@ -138,7 +138,7 @@ public class SharedMemoryImgTest
 	@Test
 	public void implicitShmImgToPython() throws Exception
 	{
-		final Img< FloatType > img = new SharedMemoryImg<>( new FloatType(), 4, 3, 2 );
+		final Img< FloatType > img = new ShmImg<>( new FloatType(), 4, 3, 2 );
 
 		int i = 0;
 		for ( FloatType t : img )
@@ -153,7 +153,7 @@ public class SharedMemoryImgTest
 	 * into an {@link NDArray} using {@link NDArrays#asNDArray} so that we can
 	 * pass it to Appose.
 	 * <p>
-	 * This works with {@link SharedMemoryImg} and other
+	 * This works with {@link ShmImg} and other
 	 * {@link RandomAccessibleInterval}s, both. It either extracts the wrapped
 	 * {@link NDArray}, or copies into a new one.
 	 * </p>
@@ -172,7 +172,7 @@ public class SharedMemoryImgTest
 
 	/**
 	 * Creates an {@link Img}, passes it through Appose as an NDArray, wrap it as a
-	 * SharedMemoryImg on the other end.
+	 * ShmImg on the other end.
 	 */
 	@Test
 	public void groovy() throws Exception
@@ -193,8 +193,8 @@ public class SharedMemoryImgTest
 			final Map< String, Object > inputs = new HashMap<>();
 			inputs.put( "ndarray", NDArrays.asNDArray( img ) );
 			String script =
-				"import net.imglib2.appose.SharedMemoryImg\n" +
-				"SharedMemoryImg img = new SharedMemoryImg(ndarray)\n" +
+				"import net.imglib2.appose.ShmImg\n" +
+				"ShmImg img = new ShmImg(ndarray)\n" +
 				"img.collect { it.get() }\n";
 			Task task = service.task( script, inputs );
 			task.waitFor();
