@@ -53,8 +53,7 @@ import net.imglib2.util.Util;
  *
  * @param <T>
  */
-public class ShmImg< T extends NativeType< T > > implements RandomAccessibleInterval< T >, WrappedImg< T >, Img< T >, AutoCloseable
-{
+public class ShmImg< T extends NativeType< T > > implements WrappedNDArray, WrappedImg< T >, Img< T > {
 	private final NDArray ndArray;
 
 	private final ArrayImg< T, ? > img;
@@ -99,13 +98,10 @@ public class ShmImg< T extends NativeType< T > > implements RandomAccessibleInte
 		this.img = NDArrays.asArrayImg( ndArray, type );
 	}
 
-	/**
-	 * Get the {@code NDArray} storing the image data.
-	 *
-	 * @return the wrapped {@code NDArray}.
-	 */
-	public NDArray ndArray()
-	{
+	// -- WrappedNDArray ------------------------------------------------------
+
+	@Override
+	public NDArray ndArray() {
 		return ndArray;
 	}
 
@@ -210,12 +206,6 @@ public class ShmImg< T extends NativeType< T > > implements RandomAccessibleInte
 	public Img< T > copy()
 	{
 		return copyOf( this );
-	}
-
-	@Override
-	public void close()
-	{
-		ndArray().close();
 	}
 
 	private static class ShmImgFactory< T extends NativeType< T > > extends ImgFactory< T >
