@@ -44,10 +44,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -73,7 +75,9 @@ public class ShmImgTest
 			.lines().collect( Collectors.joining( "\n" ) );
 
 		// Build an environment with Python + Appose + NumPy available.
-		python = Appose.include( envYaml, "environment.yml" ).logDebug().build().python();
+		// We build it beneath the target folder, rather than polluting ~/.local/share/appose.
+		File envDir = Paths.get("target").resolve("envs").resolve("imglib2-appose-test").toFile().getAbsoluteFile();
+		python = Appose.include( envYaml, "environment.yml" ).logDebug().build(envDir).python();
 	}
 
 	@AfterAll
