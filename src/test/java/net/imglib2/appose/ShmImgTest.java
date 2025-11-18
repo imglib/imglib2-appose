@@ -46,9 +46,7 @@ import org.junit.jupiter.api.Test;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
+import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -69,15 +67,20 @@ public class ShmImgTest
 	public static void setUp() throws IOException
 	{
 		// Read environment.yml from test resources.
-		InputStream is = ShmImgTest.class.getResourceAsStream( "environment.yml" );
-		assertNotNull( is );
-		String envYaml = new BufferedReader( new InputStreamReader( is, StandardCharsets.UTF_8 ) )
-			.lines().collect( Collectors.joining( "\n" ) );
+		URL envYaml = ShmImgTest.class.getResource( "environment.yml" );
+		assertNotNull( envYaml );
 
 		// Build an environment with Python + Appose + NumPy available.
 		// We build it beneath the target folder, rather than polluting ~/.local/share/appose.
-		File envDir = Paths.get("target").resolve("envs").resolve("imglib2-appose-test").toFile().getAbsoluteFile();
-		python = Appose.include( envYaml, "environment.yml" ).logDebug().build(envDir).python();
+		File envDir = Paths.get( "target" ).resolve( "envs" ).resolve( "imglib2-appose-test" ).toFile().getAbsoluteFile();
+		python = Appose
+			.pixi()
+			.url( envYaml )
+			.scheme( "environment.yml" )
+			.logDebug()
+			.base( envDir )
+			.build()
+			.python();
 	}
 
 	@AfterAll

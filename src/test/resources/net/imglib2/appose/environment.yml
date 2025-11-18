@@ -3,8 +3,6 @@ name: imglib2-appose-test
 channels:
   - conda-forge
 dependencies:
-  - python >= 3.10
-  - numpy
-  - pip
-  - pip:
-    - git+https://github.com/apposed/appose-python.git@95ee0984b776a51fe1bf2bb507ca7c0c327aa82a
+  - python = 3.9
+  - appose = 0.7.2
+  - numpy < 2
