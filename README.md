@@ -1,3 +1,5 @@
+[![Build Status](https://github.com/imglib/imglib2-appose/actions/workflows/build.yml/badge.svg)](https://github.com/imglib/imglib2-appose/actions/workflows/build.yml)
+
 # ImgLib2 Appose helpers
 
 [Appose](https://github.com/apposed/appose) is a library for interprocess cooperation with shared memory.
