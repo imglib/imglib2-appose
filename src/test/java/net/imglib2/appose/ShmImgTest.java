@@ -43,16 +43,13 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -64,7 +61,7 @@ public class ShmImgTest
 	private static Service python;
 
 	@BeforeAll
-	public static void setUp() throws IOException
+	public static void setUp() throws Exception
 	{
 		// Read environment.yml from test resources.
 		URL envYaml = ShmImgTest.class.getResource( "environment.yml" );
@@ -219,7 +216,7 @@ public class ShmImgTest
 		}
 	}
 
-	private void assertAccessibleFromPython( final NDArray data ) throws IOException, InterruptedException
+	private void assertAccessibleFromPython( final NDArray data ) throws Exception
 	{
 		final String printInput =
 			"import numpy as np\n" +
