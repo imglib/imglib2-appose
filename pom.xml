@@ -87,6 +87,9 @@
 		<license.organizationName>ImgLib2 authors</license.organizationName>
 		<license.copyrightOwners>Tobias Pietzsch and Curtis Rueden.</license.copyrightOwners>
 
+		<scijava.jvm.version>21</scijava.jvm.version>
+		<scijava.jvm.build.version>[21,)</scijava.jvm.build.version>
+
 		<appose.version>0.11.0</appose.version>
 	</properties>
 
