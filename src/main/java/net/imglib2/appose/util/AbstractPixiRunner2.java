@@ -21,8 +21,6 @@ public class AbstractPixiRunner2 implements AutoCloseable
 
 	private final URL pythonRunScriptPath;
 
-	private final URL pythonInitScriptPath;
-
 	private final URL pixiTomlPath;
 
 	private final URL pythonUtilScriptPath;
@@ -36,14 +34,12 @@ public class AbstractPixiRunner2 implements AutoCloseable
 	protected AbstractPixiRunner2(
 			final URL pixiTomlPath,
 			final URL pythonUtilScriptPath,
-			final URL pythonInitScriptPath,
 			final URL pythonRunScriptPath,
 			final String envName,
 			final ApposeTaskListener listener )
 	{
 		this.pixiTomlPath = pixiTomlPath;
 		this.pythonUtilScriptPath = pythonUtilScriptPath;
-		this.pythonInitScriptPath = pythonInitScriptPath;
 		this.pythonRunScriptPath = pythonRunScriptPath;
 		this.envName = envName;
 		this.listener = listener;
@@ -72,8 +68,11 @@ public class AbstractPixiRunner2 implements AutoCloseable
 	 * @throws RuntimeException
 	 *             if the Python initialization task fails with an error.
 	 */
-	protected void init( final Map< String, Object > inputsParams ) throws IOException, BuildException, InterruptedException, TaskException
+	public void init() throws IOException, BuildException, InterruptedException, TaskException
 	{
+		if ( runScript != null )
+			throw new IllegalStateException( "You must call init() only once" );
+
 		// Create Python env.
 		final String pixiTomlContent = IOUtils.toString( pixiTomlPath, StandardCharsets.UTF_8 );
 		final Environment env = Appose
@@ -87,28 +86,6 @@ public class AbstractPixiRunner2 implements AutoCloseable
 				? ""
 				: IOUtils.toString( pythonUtilScriptPath, StandardCharsets.UTF_8 );
 		this.python = env.activate( envName ).python().init( pythonUtilScript );
-
-		// The Python initialization task.
-		if ( pythonInitScriptPath != null )
-		{
-			final String pythonInitScript = IOUtils.toString( pythonInitScriptPath, StandardCharsets.UTF_8 );
-			final Task task = python.task( pythonInitScript, inputsParams );
-
-			final long start = System.currentTimeMillis();
-			// To catch update message from the python script
-			task.listen( listener.taskListener() );
-			task.start();
-			// Wait for task completion.
-			task.waitFor();
-
-			// Verify that it worked.
-			if ( task.status != TaskStatus.COMPLETE )
-				throw new RuntimeException( "Python script failed with error: " + task.error );
-
-			// Benchmark.
-			final long end = System.currentTimeMillis();
-			listener.message( "Initialization done in " + ( end - start ) / 1000. + " s" );
-		}
 		// Load it now and only once.
 		this.runScript = IOUtils.toString( pythonRunScriptPath, StandardCharsets.UTF_8 );
 	}
