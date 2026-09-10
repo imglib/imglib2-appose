@@ -14,7 +14,7 @@ import org.apposed.appose.Service.Task;
 import org.apposed.appose.Service.TaskStatus;
 import org.apposed.appose.TaskException;
 
-public class AbstractPixiRunner2 implements AutoCloseable
+public class PixiApposeTaskRunner implements ApposeTaskRunner
 {
 
 	private final String envName;
@@ -31,7 +31,7 @@ public class AbstractPixiRunner2 implements AutoCloseable
 
 	private String runScript;
 
-	protected AbstractPixiRunner2(
+	public PixiApposeTaskRunner(
 			final URL pixiTomlPath,
 			final URL pythonUtilScriptPath,
 			final URL pythonRunScriptPath,
@@ -68,6 +68,7 @@ public class AbstractPixiRunner2 implements AutoCloseable
 	 * @throws RuntimeException
 	 *             if the Python initialization task fails with an error.
 	 */
+	@Override
 	public void init() throws IOException, BuildException, InterruptedException, TaskException
 	{
 		if ( runScript != null )
@@ -107,7 +108,8 @@ public class AbstractPixiRunner2 implements AutoCloseable
 	 * @throws RuntimeException
 	 *             if the Python run task fails with an error.
 	 */
-	protected void run( final Map< String, Object > inputsParams ) throws InterruptedException, TaskException
+	@Override
+	public void run( final Map< String, Object > inputsParams ) throws InterruptedException, TaskException
 	{
 		if ( runScript == null )
 			throw new IllegalStateException( "You must call init() before calling run()" );
