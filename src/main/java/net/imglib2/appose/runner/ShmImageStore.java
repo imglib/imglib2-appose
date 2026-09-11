@@ -1,4 +1,4 @@
-package net.imglib2.appose.util;
+package net.imglib2.appose.runner;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

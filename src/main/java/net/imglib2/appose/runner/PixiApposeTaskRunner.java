@@ -1,4 +1,4 @@
-package net.imglib2.appose.util;
+package net.imglib2.appose.runner;
 
 import java.io.IOException;
 import java.net.URL;
@@ -12,6 +12,9 @@ import org.apposed.appose.Environment;
 import org.apposed.appose.Service;
 import org.apposed.appose.Service.Task;
 import org.apposed.appose.Service.TaskStatus;
+
+import net.imglib2.appose.util.ApposeTaskListener;
+
 import org.apposed.appose.TaskException;
 
 public class PixiApposeTaskRunner implements ApposeTaskRunner
