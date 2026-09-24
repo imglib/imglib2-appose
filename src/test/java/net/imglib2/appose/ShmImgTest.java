@@ -32,6 +32,19 @@ package net.imglib2.appose;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgs;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.ComplexType;
+import net.imglib2.type.numeric.complex.ComplexDoubleType;
+import net.imglib2.type.numeric.complex.ComplexFloatType;
+import net.imglib2.type.numeric.integer.ByteType;
+import net.imglib2.type.numeric.integer.IntType;
+import net.imglib2.type.numeric.integer.LongType;
+import net.imglib2.type.numeric.integer.ShortType;
+import net.imglib2.type.numeric.integer.UnsignedByteType;
+import net.imglib2.type.numeric.integer.UnsignedIntType;
+import net.imglib2.type.numeric.integer.UnsignedLongType;
+import net.imglib2.type.numeric.integer.UnsignedShortType;
+import net.imglib2.type.numeric.real.DoubleType;
 import net.imglib2.type.numeric.real.FloatType;
 import org.apposed.appose.Appose;
 import org.apposed.appose.Environment;
@@ -213,6 +226,68 @@ public class ShmImgTest
 				Number number = ( Number ) value;
 				assertEquals( i, number.floatValue() );
 			}
+		}
+	}
+
+	/**
+	 * We create a {@link ShmImg} of each numeric type, and check that Python
+	 * sees the matching dtype, shape and values.
+	 * <p>
+	 * Note: {@code NativeBoolType} is excluded, because ImgLib2 has no boolean
+	 * {@code BufferAccess} yet, so a {@code ShmImg} of it cannot be created.
+	 * </p>
+	 */
+	@Test
+	public void allTypesToPython() throws Exception
+	{
+		assertTypeAccessibleFromPython( new ByteType(), "int8" );
+		assertTypeAccessibleFromPython( new ShortType(), "int16" );
+		assertTypeAccessibleFromPython( new IntType(), "int32" );
+		assertTypeAccessibleFromPython( new LongType(), "int64" );
+		assertTypeAccessibleFromPython( new UnsignedByteType(), "uint8" );
+		assertTypeAccessibleFromPython( new UnsignedShortType(), "uint16" );
+		assertTypeAccessibleFromPython( new UnsignedIntType(), "uint32" );
+		assertTypeAccessibleFromPython( new UnsignedLongType(), "uint64" );
+		assertTypeAccessibleFromPython( new FloatType(), "float32" );
+		assertTypeAccessibleFromPython( new DoubleType(), "float64" );
+		assertTypeAccessibleFromPython( new ComplexFloatType(), "complex64" );
+		assertTypeAccessibleFromPython( new ComplexDoubleType(), "complex128" );
+	}
+
+	private < T extends NativeType< T > & ComplexType< T > > void assertTypeAccessibleFromPython(
+			final T type, final String dtype ) throws Exception
+	{
+		final String script =
+			"a = data.ndarray()\n" +
+			"task.outputs['dtype'] = data.dtype\n" +
+			"task.outputs['npdtype'] = a.dtype.name\n" +
+			"task.outputs['shape'] = list(a.shape)\n" +
+			"task.outputs['real'] = [float(v) for v in a.real.ravel()]\n" +
+			"task.outputs['imag'] = [float(v) for v in a.imag.ravel()]\n";
+
+		try ( final ShmImg< T > img = new ShmImg<>( type, 4, 3, 2 ) )
+		{
+			DTypesTest.fill( img );
+
+			final Map< String, Object > inputs = new HashMap<>();
+			inputs.put( "data", img.ndArray() );
+			final Task task = python.task( script, inputs );
+			task.waitFor();
+
+			assertSame( TaskStatus.COMPLETE, task.status, task.error );
+			assertEquals( dtype, task.outputs.get( "dtype" ) );
+			assertEquals( dtype, task.outputs.get( "npdtype" ) );
+			assertEquals( Arrays.asList( 2, 3, 4 ), task.outputs.get( "shape" ) );
+			final List< ? > real = ( List< ? > ) task.outputs.get( "real" );
+			final List< ? > imag = ( List< ? > ) task.outputs.get( "imag" );
+			int i = 0;
+			for ( final T t : img )
+			{
+				assertEquals( t.getRealDouble(), ( ( Number ) real.get( i ) ).doubleValue(), dtype );
+				assertEquals( t.getImaginaryDouble(), ( ( Number ) imag.get( i ) ).doubleValue(), dtype );
+				i++;
+			}
+			assertEquals( img.size(), real.size(), dtype );
 		}
 	}
 
