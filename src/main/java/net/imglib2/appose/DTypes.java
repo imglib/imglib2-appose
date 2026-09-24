@@ -92,7 +92,7 @@ public class DTypes
 		else if ( type instanceof ComplexFloatType )
 			return DType.COMPLEX64;
 		else if ( type instanceof ComplexDoubleType )
-			return DType.COMPLEX64;
+			return DType.COMPLEX128;
 		else if ( type instanceof NativeBoolType )
 			return DType.BOOL;
 		else
