@@ -106,6 +106,18 @@
 			<artifactId>imglib2</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>net.imglib2</groupId>
+			<artifactId>imglib2-cache</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.janelia.saalfeldlab</groupId>
+			<artifactId>n5</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.janelia.saalfeldlab</groupId>
+			<artifactId>n5-imglib2</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.apposed</groupId>
 			<artifactId>appose</artifactId>
 			<version>${appose.version}</version>
