@@ -57,7 +57,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -76,17 +75,13 @@ public class ShmImgTest
 	@BeforeAll
 	public static void setUp() throws Exception
 	{
-		// Read environment.yml from test resources.
-		URL envYaml = ShmImgTest.class.getResource( "environment.yml" );
-		assertNotNull( envYaml );
-
 		// Build an environment with Python + Appose + NumPy available.
+		// NB: The builder adds a version of Appose compatible with this one.
 		// We build it beneath the target folder, rather than polluting ~/.local/share/appose.
 		File envDir = Paths.get( "target" ).resolve( "envs" ).resolve( "imglib2-appose-test" ).toFile().getAbsoluteFile();
 		python = Appose
 			.pixi()
-			.url( envYaml )
-			.scheme( "environment.yml" )
+			.conda( "python=3.9", "numpy<2" )
 			.logDebug()
 			.base( envDir )
 			.build()
@@ -306,7 +301,7 @@ public class ShmImgTest
 
 		assertSame( TaskStatus.COMPLETE, task.status, task.error );
 		Object dataType = task.outputs.get( "datatype" );
-		assertEquals( "<class 'appose.types.NDArray'>", dataType );
+		assertEquals( "<class 'appose.shm.NDArray'>", dataType );
 		String result = ( String ) task.outputs.get( "result" );
 		List< String > actual = Arrays.asList( result.split( "(\r\n|\n|\r)" ) );
 		List< String > expected = Arrays.asList(

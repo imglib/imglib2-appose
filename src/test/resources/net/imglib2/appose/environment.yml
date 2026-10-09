@@ -1,8 +1,0 @@
-name: imglib2-appose-test
-
-channels:
-  - conda-forge
-dependencies:
-  - python = 3.9
-  - appose = 0.7.2
-  - numpy < 2

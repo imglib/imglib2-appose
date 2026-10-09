@@ -30,6 +30,7 @@ package net.imglib2.appose;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.EnumSet;
 import java.util.Iterator;
@@ -78,6 +79,11 @@ public class DTypesTest
 		mapped.add( assertMapping( new ComplexFloatType(), DType.COMPLEX64 ) );
 		mapped.add( assertMapping( new ComplexDoubleType(), DType.COMPLEX128 ) );
 		mapped.add( assertMapping( new NativeBoolType(), DType.BOOL ) );
+
+		// ImgLib2 has no 16-bit floating point type.
+		assertThrows( IllegalArgumentException.class, () -> DTypes.type( DType.FLOAT16 ) );
+		assertThrows( IllegalArgumentException.class, () -> DTypes.primitiveType( DType.FLOAT16 ) );
+		mapped.add( DType.FLOAT16 );
 
 		// Every Appose DType should be handled one way or another.
 		assertEquals( EnumSet.allOf( DType.class ), mapped );
