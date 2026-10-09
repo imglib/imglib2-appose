@@ -28,6 +28,8 @@
  */
 package net.imglib2.appose;
 
+import static org.apposed.appose.NDArray.Shape.Order.F_ORDER;
+
 import org.apposed.appose.NDArray;
 
 import net.imglib2.Cursor;
@@ -90,6 +92,37 @@ public class ShmImg< T extends NativeType< T > > implements WrappedNDArray, Wrap
 	public ShmImg(final T type, final int... dimensions  )
 	{
 		this( type, NDArrays.ndArray( type, dimensions ) );
+	}
+
+	/**
+	 * Creates a {@code ShmImg} in the service's managed shared memory (in a
+	 * worker, the service allocates it, on request).
+	 * <p>
+	 * A managed image may be sent to any number of processes (e.g. as a task
+	 * input or output), which share its data in place; it is freed once no
+	 * process uses it anymore. See {@link NDArray#managed}.
+	 * </p>
+	 *
+	 * @param type pixel type
+	 * @param dimensions image dimensions
+	 * @return The newly allocated image.
+	 */
+	public static < T extends NativeType< T > > ShmImg< T > managed( final T type, final int... dimensions )
+	{
+		return wrap( type, NDArray.managed( DTypes.dtype( type ), new NDArray.Shape( F_ORDER, dimensions ) ) );
+	}
+
+	private static < T extends NativeType< T > > ShmImg< T > wrap( final T type, final NDArray ndArray )
+	{
+		try
+		{
+			return new ShmImg<>( type, ndArray );
+		}
+		catch ( final RuntimeException e )
+		{
+			ndArray.close();
+			throw e;
+		}
 	}
 
 	private ShmImg(final T type, final NDArray ndArray )
