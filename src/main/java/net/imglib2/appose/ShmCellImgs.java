@@ -13,20 +13,12 @@ import net.imglib2.cache.ref.GuardedStrongRefLoaderRemoverCache;
 import net.imglib2.img.basictypeaccess.array.ArrayDataAccess;
 import net.imglib2.img.basictypeaccess.nio.BufferAccess;
 import net.imglib2.img.basictypeaccess.nio.BufferDataAccessFactory;
-import net.imglib2.img.basictypeaccess.nio.ByteBufferAccess;
-import net.imglib2.img.basictypeaccess.nio.CharBufferAccess;
-import net.imglib2.img.basictypeaccess.nio.DoubleBufferAccess;
-import net.imglib2.img.basictypeaccess.nio.FloatBufferAccess;
-import net.imglib2.img.basictypeaccess.nio.IntBufferAccess;
-import net.imglib2.img.basictypeaccess.nio.LongBufferAccess;
-import net.imglib2.img.basictypeaccess.nio.ShortBufferAccess;
 import net.imglib2.img.cell.AbstractCellImg;
 import net.imglib2.img.cell.Cell;
 import net.imglib2.img.cell.CellGrid;
 import net.imglib2.img.cell.CellGrid.CellDimensionsAndSteps;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.NativeTypeFactory;
-import net.imglib2.type.PrimitiveType;
 import net.imglib2.util.Cast;
 import net.imglib2.util.Fraction;
 import net.imglib2.util.Util;
@@ -51,17 +43,19 @@ public class ShmCellImgs {
 		final T type = source.getType();
 		final CellGrid grid = source.getCellGrid();
 
+		final NativeTypeFactory<T, A> typeFactory = Cast.unchecked(type.getNativeTypeFactory());
+		final A accessType = BufferDataAccessFactory.get(typeFactory);
+		final Function<NDArray, A> wrapAsBufferAccess = ndArray -> accessType.newInstance(ndArray.buffer(), true);
+
 		// Create a CacheLoader that copies cells into NDArray buffers
-		final CacheLoader<Long, Cell<A>> loader = new ShmCellLoader<>(source, ndArrayFactory);
+		final CacheLoader<Long, Cell<A>> loader = new ShmCellLoader<>(source, ndArrayFactory, wrapAsBufferAccess);
 
 		// Create a CacheRemover that closes NDArray of discarded ShmCells.
-		final CacheRemover<Long, Cell<A>, NDArray> remover = new ShmCellRemover<>(type, grid);
+		final CacheRemover<Long, Cell<A>, NDArray> remover = new ShmCellRemover<>(grid, wrapAsBufferAccess);
 
 		final LoaderRemoverCache<Long, Cell<A>, NDArray> loaderRemoverCache = new GuardedStrongRefLoaderRemoverCache<>(0);
 		final Cache<Long, Cell<A>> cache = loaderRemoverCache.withRemover(remover).withLoader(loader);
 
-		final NativeTypeFactory<T, A> typeFactory = Cast.unchecked(type.getNativeTypeFactory());
-		final A accessType = BufferDataAccessFactory.get(typeFactory);
 		final CachedCellImg<T, A> img = new CachedCellImg<>(grid, type, cache, accessType);
 		img.setLinkedType(typeFactory.createLinkedType(img));
 		return img;
@@ -98,7 +92,7 @@ public class ShmCellImgs {
 		private final Function<NDArray, A> wrapAsBufferAccess;
 		private final SubArrayCopy.Typed<Object, Object> copyArrayToBuffer;
 
-		ShmCellLoader(final AbstractCellImg<T, ?, ?, ?> source, final NDArrayFactory ndArrayFactory) {
+		ShmCellLoader(final AbstractCellImg<T, ?, ?, ?> source, final NDArrayFactory ndArrayFactory, final Function<NDArray, A> wrapAsBufferAccess) {
 
 			// Create a CacheLoader that copies cells into shared memory buffers
 			grid = source.getCellGrid();
@@ -109,7 +103,7 @@ public class ShmCellImgs {
 			dType = DTypes.dtype(type);
 			entitiesPerPixel = type.getEntitiesPerPixel();
 
-			wrapAsBufferAccess = createAccessWrapper(dType);
+			this.wrapAsBufferAccess = wrapAsBufferAccess;
 			copyArrayToBuffer = SubArrayCopy.forPrimitiveType(DTypes.primitiveType(dType), false, true);
 
 		}
@@ -140,14 +134,14 @@ public class ShmCellImgs {
 	}
 
 
-	private static class ShmCellRemover<T extends NativeType<T>, A extends BufferAccess<?>> implements CacheRemover<Long, Cell<A>, NDArray> {
+	private static class ShmCellRemover<A extends BufferAccess<?>> implements CacheRemover<Long, Cell<A>, NDArray> {
 
 		private final CellGrid grid;
 		private final Function<NDArray, A> wrapAsBufferAccess;
 
-		ShmCellRemover(final T type, final CellGrid grid) {
+		ShmCellRemover(final CellGrid grid, final Function<NDArray, A> wrapAsBufferAccess) {
 			this.grid = grid;
-			wrapAsBufferAccess = createAccessWrapper(DTypes.dtype(type));
+			this.wrapAsBufferAccess = wrapAsBufferAccess;
 		}
 
 		@Override
@@ -171,32 +165,6 @@ public class ShmCellImgs {
 			final CellDimensionsAndSteps dimsAndSteps = grid.getCellDimensions(key, cellMin);
 			final A targetAccess = wrapAsBufferAccess.apply(valueData);
 			return new ShmCell<>(dimsAndSteps, cellMin, targetAccess, valueData);
-		}
-	}
-
-
-	@SuppressWarnings("unchecked")
-	private static <A extends BufferAccess<?>> Function<NDArray, A> createAccessWrapper(final NDArray.DType dType) {
-		final PrimitiveType primitiveType = DTypes.primitiveType(dType);
-		switch (primitiveType) {
-		case BYTE:
-			return ndArray -> (A) new ByteBufferAccess(ndArray.buffer(), true);
-		case CHAR:
-			return ndArray -> (A) new CharBufferAccess(ndArray.buffer());
-		case SHORT:
-			return ndArray -> (A) new ShortBufferAccess(ndArray.buffer());
-		case INT:
-			return ndArray -> (A) new IntBufferAccess(ndArray.buffer());
-		case LONG:
-			return ndArray -> (A) new LongBufferAccess(ndArray.buffer());
-		case FLOAT:
-			return ndArray -> (A) new FloatBufferAccess(ndArray.buffer());
-		case DOUBLE:
-			return ndArray -> (A) new DoubleBufferAccess(ndArray.buffer());
-		case BOOLEAN:
-		case UNDEFINED:
-		default:
-			throw new IllegalArgumentException("Unsupported type: " + primitiveType);
 		}
 	}
 }
