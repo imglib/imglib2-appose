@@ -28,13 +28,42 @@ import static org.apposed.appose.NDArray.Shape.Order.F_ORDER;
 
 public class ShmCellImgs {
 
+	/**
+	 * Allocates the {@code NDArray} for each cell of a {@code ShmCellImg}.
+	 */
 	public interface NDArrayFactory {
 
 		NDArray createNDArray(final NDArray.DType dType, final NDArray.Shape shape);
 	}
 
 	/**
-	 * Wrap a source {@code CellImg} into a NDArray backed {@code CachedCellImg}.
+	 * Wrap a source {@code CellImg} into a NDArray backed {@code CachedCellImg},
+	 * whose cells are copied lazily into the service's managed shared memory.
+	 * <p>
+	 * Each cell's {@code NDArray} can thus be shared with any number of worker
+	 * processes in place. It is closed once the cell is evicted from the
+	 * cache, and freed once no worker uses it anymore either. See
+	 * {@link NDArray#managed}.
+	 * </p>
+	 * <p>
+	 * The cells of {@code source} must be backed by primitive arrays (i.e.
+	 * {@link ArrayDataAccess}).
+	 * </p>
+	 */
+	public static <T extends NativeType<T>, A extends ArrayDataAccess<A> & BufferAccess<A>> CachedCellImg<T, A> createShmCellImg(
+			final AbstractCellImg<T, ?, ?, ?> source) {
+		return createShmCellImg(source, NDArray::managed);
+	}
+
+	/**
+	 * Wrap a source {@code CellImg} into a NDArray backed {@code CachedCellImg},
+	 * whose cells are copied lazily into {@code NDArray}s allocated by the
+	 * given factory. Each cell's {@code NDArray} is closed once the cell is
+	 * evicted from the cache.
+	 * <p>
+	 * The cells of {@code source} must be backed by primitive arrays (i.e.
+	 * {@link ArrayDataAccess}).
+	 * </p>
 	 */
 	public static <T extends NativeType<T>, A extends ArrayDataAccess<A> & BufferAccess<A>> CachedCellImg<T, A> createShmCellImg(
 			final AbstractCellImg<T, ?, ?, ?> source,
