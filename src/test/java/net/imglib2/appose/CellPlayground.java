@@ -12,8 +12,10 @@ public class CellPlayground {
 	public static void main(String[] args) throws Exception {
 
 		// Open source image as a (array-backed) CellImg
-		final N5Reader n5 = new N5FSReader("/Users/pietzsch/workspace/data/111010_weber_full.n5", true);
-		final CachedCellImg<ShortType, ?> source = N5Utils.open(n5, "/t00001/s00/s0");
+		final String path = args.length > 0 ? args[0] : "/Users/pietzsch/workspace/data/111010_weber_full.n5";
+		final String dataset = args.length > 1 ? args[1] : "/t00001/s00/s0";
+		final N5Reader n5 = new N5FSReader(path, true);
+		final CachedCellImg<ShortType, ?> source = N5Utils.open(n5, dataset);
 
 		final Img<ShortType> img = ShmCellImgs.createShmCellImg(source);
 
